@@ -1,4 +1,7 @@
-Code used to calculate theoretical PEC cells, both for hydrogen and ethylene production. 
+Code used to calculate theoretical PEC cells, both for hydrogen and ethylene production for the paper: 
+"Axiomatic Design for Analysis and Noniterative Engineering of Photoelectrochemical Cells for CO2 Conversion at High Photon to Product Yield"
+
+The main code is in 'PEC_cell.py'. Seven calculations are preselected. Scenario A uses sparse coverage (Figure 3), Scenario B uses solar concentration (Figure S2), Scenario C uses PV-EC (Figure S3) and scenario F no concentration (Figure S7), all calculated with tandem solar cells. Scenario T uses sparse coverage with tripple solar cells (Figure S9). All scenarios use data for the O(II)D-Cu and NiFeOx catalyst (Asiri, 2022 & McCrory 2013). Variation in solar light is presented for both of the Cu-Ag catalyst (Gao 2019) and the O(II)D-Cu catalyst (Figure 4) and isolines for overpotential and Faradaic Efficiencies of the CO2RR catalyst (Figure 5 and Figure S5).    
 
 Four types of concentration are distinguished: sparse coverage, solar concentration, PV-EC and no concentration, each with their own module. 
 The reduction reaction is assumed to be CO2RR towards ethylene, but the model can also be used for hydrogen evolution reaction (HER) calculations. 
@@ -10,9 +13,6 @@ The high bandgap solar cell is assumed to be transparent for all wavelengths abo
 
 For the scenarios where the optimal solar cells are calculated with sparse coverage, the CO2RR catalyst is assumed to operate at the overpotential that generates the highest Faradaic efficiency. For every solar cell combination, a different j_s is calculated, which in turn is used to determine the concentration ratio A_s/A_(CO_2 RR) for the sparsely applied catalyst scenario. In the concentrated sunlight scenario, the solar concentration on the solar cells is gradually increased to achieve the ideal j_CO2RR=j_s, optimizing the selectivity towards ethylene. Additionally, R_transport is lowered to 1Ω to account for the larger surface area of the CO2RR catalyst. The optimal solar cells for electricity production are calculated and matched to an EC cell that operates at a fixed voltage. The scaling, both of the different area and number of PV and EC components, is determined afterwards. The efficiencies are based on the area of the solar cells. 
 When varying sunlight and calculating the scenario without concentration, the Faradaic  efficiency, voltage and current responses of the CO2RR catalysts are interpolated from reported data.
-
-In this file, 5 calculations are preselected. Scenario A uses sparse coverage, Scenario B uses solar concentration, Scenario C uses PV-EC and scenario F no concentration, all using data for the O(II)D-Cu and NiFeOx catalyst. Finally, variation in solar light is presented, both of the Cu-Ag catalyst and the O(II)D-Cu catalyst.   
-
 
 References
 
@@ -30,6 +30,7 @@ Jing Gao, Hong Zhang, Xueyi Guo, Jingshan Luo, Shaik M. Zakeeruddin, Dan Ren*, a
 Jing Gao  Dan Ren Xueyi Guo Shaik Mohammed Zakeeruddin and  Michael Grätzel  Faraday Discuss., 2019,215, 282-296
 Dongxing Tan, Bari Wulan, Xueying Cao, Jintao Zhang, Nano Energy,Volume 89, Part B, 2021, 106460, 2211-2855 https://doi.org/10.1016/j.nanoen.2021.106460.
 Choi, C., Kwon, S., Cheng, T. et al. Highly active and stable stepped Cu surface for enhanced electrochemical CO2 reduction to C2H4. Nat Catal 3, 804–812 (2020). https://doi.org/10.1038/s41929-020-00504-x
+Asiri, A. M.; Gao, J.; Khan, S. B.; Alamry, K. A.; Marwani, H. M.; Khan, M. S. J.; Adeosun, W. A.; Zakeeruddin, S. M.; Ren, D.; Grätzel, M. Revisiting the Impact of Morphology and Oxidation State of Cu on CO2 Reduction Using Electrochemical Flow Cell. J. Phys. Chem. Lett. 2022, 13 (1), 345–351. https://doi.org/10.1021/acs.jpclett.1c03957.
 
 HER catalyst:
 Shu Hu et al., Energy Environ. Sci., ,6, 2984-2993 (2013); https://doi.org/10.1039/C3EE40453F
