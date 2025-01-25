@@ -23,6 +23,9 @@ Shu Hu et al., Energy Environ. Sci., ,6, 2984-2993 (2013); https://doi.org/10.10
 
 Rühle, S. Tabulated Values of the Shockley–Queisser Limit for Single Junction Solar Cells. Solar Energy 2016, 130, 139–147; https://doi.org/10.1016/j.solener.2016.02.015.
 
+Solar Spectrum: https://www.nrel.gov/grid/solar-resource/spectra-am1.5.html  
+
+Intersect:https://github.com/sukhbinder/intersection/blob/master/intersect/intersect.py
 
 **CO2RR to ethylene catalysts:**  
 Dan Ren ACS Sustainable Chemistry & Engineering,5(10):9191–9199 (2017); https://doi.org/10.1021/acssuschemeng.7b02110
@@ -53,8 +56,7 @@ McCrory, C. C. L.; Jung, S.; Peters, J. C.; Jaramillo, T. F. Benchmarking Hetero
 
 
 
-Solar Spectrum: https://www.nrel.gov/grid/solar-resource/spectra-am1.5.html
-Intersect:https://github.com/sukhbinder/intersection/blob/master/intersect/intersect.py
+
 
 @author: assensme
 
