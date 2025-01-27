@@ -18,10 +18,11 @@ import PEC_cell
 #Figure 3
    
 A=PEC_cell.PEC_Cell()
+A.message_spectrum_loaded=False
 A.Calculate_setup(scenario='Scenario A: sparse coverage')
 plt.show()
 
 
 
-print('Scenario A')
+print('Scenario A sparse coverage')
 

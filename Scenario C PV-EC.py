@@ -23,4 +23,4 @@ C.message_spectrum_loaded=False
 C.Calculate_setup(scenario='Scenario C: PV-EC')
 plt.show()
 
-print('PV-EC')
+print('Scenario C: PV-EC')

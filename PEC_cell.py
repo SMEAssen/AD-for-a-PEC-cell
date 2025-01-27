@@ -707,7 +707,10 @@ class PEC_Cell():
             Scaling_matrix=np.zeros([np.size(Solar_cell_1_range),np.size(Solar_cell_2_range),np.size(Solar_cell_3_range)])
     
         if self.Bandgap_message==True:
-            print('Bandgap1 \t Bandgap2  \t STE \t umol C2H4/h/cm2 \t FE_all \t V \t\t J')
+            if self.Three_solar_cells:
+                print('Bandgap1 \t Bandgap2 \t Bandgap3 \t STE \t umol C2H4/h/cm2 \t FE_all \t V \t\t J')
+            else:
+                print('Bandgap1 \t Bandgap2  \t STE \t umol C2H4/h/cm2 \t FE_all \t V \t\t J')
 
         
         
@@ -1379,7 +1382,7 @@ class PEC_Cell():
             self.plot_graph_vary_intensity(Solar_Concentration_range *Standard_Solarpower, FEs, 'Solar irradiation (mW/cm$^2$)','Overall Faradaic efficiency (%)')
             self.plot_graph_vary_intensity(Solar_Concentration_range *Standard_Solarpower, Voltages, 'Solar irradiation (mW/cm$^2$)','Overall Voltage (V)')
             self.plot_graph_vary_intensity(Solar_Concentration_range *Standard_Solarpower, Currents, 'Solar irradiation (mW/cm$^2$)','Used photocurrent (mA/cm$^2$)',linear=1)
-            self.plot_graph_vary_intensity(Solar_Concentration_range *Standard_Solarpower,  umol_C2H4, 'Solar irradiation (mW/cm$^2$)','Produced C$_2$H$_4$ ($\mu$mol / h / cm$^2$)',linear=1)
+            self.plot_graph_vary_intensity(Solar_Concentration_range *Standard_Solarpower,  umol_C2H4, 'Solar irradiation (mW/cm$^2$)',r'Produced C$_2$H$_4$ ($\mu$mol / h / cm$^2$)',linear=1)
             
             
     

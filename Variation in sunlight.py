@@ -23,7 +23,7 @@ A=PEC_cell.PEC_Cell()
 A.plot_curves=False
 A.Bandgap_message=False
 A.Eg_completed=False
-
+A.message_spectrum_loaded=False
 A.Calculate_setup(scenario='Scenario A: sparse coverage')
 A.Vary_Solar_Intensity(A.Solar_cell_combination[0],A.Solar_cell_combination[1])
 plt.show()
@@ -32,6 +32,7 @@ CuAg=PEC_cell.PEC_Cell()
 CuAg.plot_curves=False
 CuAg.Bandgap_message=False
 CuAg.Eg_completed=False
+CuAg.message_spectrum_loaded=False
 CuAg.Calculate_setup(scenario='CuAg-NiFeOx_high_pH')
 CuAg.Vary_Solar_Intensity(CuAg.Solar_cell_combination[0],CuAg.Solar_cell_combination[1])
 plt.show()

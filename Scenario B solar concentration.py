@@ -23,4 +23,4 @@ B.message_spectrum_loaded=False
 B.Calculate_setup(scenario='Scenario B: solar concentration')
 plt.show()
 
-print('Solar concentration')
+print('Scenario B Solar concentration')

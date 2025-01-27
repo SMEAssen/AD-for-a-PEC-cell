@@ -23,4 +23,4 @@ F=PEC_cell.PEC_Cell()
 F.message_spectrum_loaded=False
 F.Calculate_setup(scenario='Scenario F: no concentration')
 plt.show()
-print('No concentration')
+print('Scenario F: No concentration')
