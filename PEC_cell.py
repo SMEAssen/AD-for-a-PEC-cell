@@ -201,6 +201,8 @@ class PEC_Cell():
         self.message_spectrum_loaded=True
         self.Eg_completed=True
         self.plot_curves=True
+        self.message_concentration=True
+        self.message_variation=True
         
     def Calculate_setup(self,scenario='OD(II)-Cu_NiFeOx_high_pH_sparse_coverage'):
         #Start up a scenario and catalyst set-up and start the calculations 
@@ -259,7 +261,7 @@ class PEC_Cell():
             self.FF_goal=0.85
             
         elif scenario=='Scenario A: sparse coverage':
-            print('A')
+            # print('A')
   
             self.PEC_mode='sparse coverage'
             self.Reduction_mode='CO2 reduction'
@@ -331,8 +333,14 @@ class PEC_Cell():
             self.CO2RR_catalyst='OIID-Cu'
             self.OER_catalyst='NiFeOx_pH14'
             self.FF_goal=0.85
+            self.PEC_mode='sparse coverage'
+            self.Reduction_mode='CO2 reduction'
+            self.CO2RR_catalyst='Variable'
+            self.OER_catalyst='NiFeOx_pH14'
+            self.Fluid_resistance=5 #Ohm/cm^2
+            self.FF_goal=0.85
+            
         elif scenario=='VariableCO2RRcatalyst':
-            #Scenario A
             self.PEC_mode='sparse coverage'
             self.Reduction_mode='CO2 reduction'
             self.CO2RR_catalyst='Variable'
@@ -371,19 +379,20 @@ class PEC_Cell():
                 self.J_max_ethylene=250
                 self.Max_ethylene_percentage=self.set_max_ethylene
             else:
+                
                 Ethylene_percentage,Current_density_CO2RR,Voltage_CO2RR=self.Data_CO2RR_catalyst()
                 self.eta_CO2RR=np.arange(max(Voltage_CO2RR),min(Voltage_CO2RR)+self.Voltage_accuracy,-self.Voltage_accuracy)
                 CD_extended=interpolate.interp1d(Voltage_CO2RR,Current_density_CO2RR)
                 self.Current_density_CO2RR_extended=CD_extended(self.eta_CO2RR)
-                Ethylene_extended_function=interpolate.interp1d(Voltage_CO2RR,Ethylene_percentage)
+                Ethylene_extended_function=interpolate.interp1d(Voltage_CO2RR,Ethylene_percentage,'cubic')
                 
                 self.Ethylene_percentage_extended=Ethylene_extended_function(self.eta_CO2RR)
                 #self.Ethylene_percentage_extended[np.where(self.Ethylene_percentage_extended<min(Ethylene_percentage))]=min(Ethylene_percentage)
-                location_max_ethylene=np.where(self.Ethylene_percentage_extended==max(self.Ethylene_percentage_extended))[0][0]
-                self.V_max_ethylene=self.eta_CO2RR[location_max_ethylene]       
-                self.J_max_ethylene=self.Current_density_CO2RR_extended[location_max_ethylene]
-                self.Max_ethylene_percentage=max(self.Ethylene_percentage_extended)
-                print(self.Max_ethylene_percentage,self.J_max_ethylene,self.V_max_ethylene,self.CO2RR_catalyst)
+                location_max_ethylene=np.where(Ethylene_percentage==np.max(Ethylene_percentage))[0][0]
+                self.V_max_ethylene=Voltage_CO2RR[location_max_ethylene]       
+                self.J_max_ethylene=Current_density_CO2RR[location_max_ethylene]
+                self.Max_ethylene_percentage=np.max(Ethylene_percentage)
+                # print(self.Max_ethylene_percentage,self.J_max_ethylene,self.V_max_ethylene,self.CO2RR_catalyst)
         elif self.Reduction_mode=='HER':
             self.i_HER,self.eta_HER,self.A_HER=self.Data_HER()
 
@@ -609,9 +618,9 @@ class PEC_Cell():
         self.Solar_J_matrix=J_matrix
         
         if not self.Three_solar_cells and self.plot_curves:
-            self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,Efficiency_matrix[:,:,0],xmax=self.Max_efficiency_Solar_cell_2_index,ymax=self.Max_efficiency_Solar_cell_1_index,boxtext='Efficiency: ',unit='%',levels=[0,10,15,20,25,30,35,40,45,50],detail='%1.1f',cmap='Greens_r',title='Solar cell tandem series efficiency',clabel='efficiency (%)')
-            self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,V_matrix[:,:,0],xmax=self.Max_efficiency_Solar_cell_2_index,ymax=self.Max_efficiency_Solar_cell_1_index,boxtext='Voltage: ',title='',unit='V',levels=np.arange(np.min(V_matrix),np.max(V_matrix)+0.05,0.05),detail='%1.2f',cmap='winter',clabel='Voltage over catalysts (V)')
-            self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,J_matrix[:,:,0],xmax=self.Max_efficiency_Solar_cell_2_index,ymax=self.Max_efficiency_Solar_cell_1_index,boxtext='Current Density: ',title='',unit=' mA/cm$^2$',cmap='autumn',levels=np.array([0,3,6,9,12,15,18,21,24,27,30,33,36]),clabel='Current Density (mA/cm$^2$)')
+            self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,Efficiency_matrix[:,:,0],xmax=self.Max_efficiency_Solar_cell_2_index,ymax=self.Max_efficiency_Solar_cell_1_index,boxtext='Efficiency: ',unit='%',levels=[0,10,15,20,25,30,35,40,45,50],detail='%1.1f',cmap='Greens_r',title='Solar cell tandem series efficiency',clabel='Solar cell Efficiency (%)',decimals=1)
+            self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,V_matrix[:,:,0],xmax=self.Max_efficiency_Solar_cell_2_index,ymax=self.Max_efficiency_Solar_cell_1_index,boxtext=r'$U_{\rm solar}$: ',title='',unit='V',levels=np.arange(np.min(V_matrix),np.max(V_matrix)+0.05,0.05),detail='%1.2f',cmap='winter',clabel=r'$U_{\rm solar}$: (V)',decimals=2)
+            self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,J_matrix[:,:,0],xmax=self.Max_efficiency_Solar_cell_2_index,ymax=self.Max_efficiency_Solar_cell_1_index,boxtext=r'$j_{\rm s}$',title='',unit=' mA/cm$^2$',cmap='autumn',levels=np.array([0,3,6,9,12,15,18,21,24,27,30,33,36]),clabel=r'$j_{\rm s}$ (mA/cm$^2$)',decimals=1)
            
  
     def Calculate_converter_PV_EC(self,eta_membrane=0.1,converter_efficiency=1):
@@ -637,9 +646,16 @@ class PEC_Cell():
         Solar_cell_1_range=np.arange(self.bandgap_range[0],self.bandgap_range[1],self.grid_step[0])
         Solar_cell_2_range=np.arange(self.bandgap_range[2],self.bandgap_range[3],self.grid_step[1])
         if self.plot_curves:
-            self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,self.Efficiency_matrix[:,:,0]*electrolyzer_efficiency*Faradaic_efficiency,xmax=self.Max_efficiency_Solar_cell_2_index,ymax=self.Max_efficiency_Solar_cell_1_index,boxtext='Efficiency: ',unit='%',levels=[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16],detail='%1.1f',cmap='Greens_r',title='Solar cell tandem series efficiency',clabel='efficiency (%)')
-            self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,self.umol_cm2[:,:,0],xmax=self.Max_efficiency_Solar_cell_2_index,ymax=self.Max_efficiency_Solar_cell_1_index,boxtext='',unit=r' $\mu$mol/h/cm$^2$ C$_2$H$_4$', title='',cmap='Purples_r',levels=[0,4,8,12,16,20,24,28,32,36],clabel=r'C$_2$H$_4$ production rate ($\mu$mol/h/cm$^2$)')
-            self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,250/self.Solar_J_matrix[:,:,0],xmax=self.Max_efficiency_Solar_cell_2_index,ymax=self.Max_efficiency_Solar_cell_1_index,boxtext='PV-EC scaling by factor: ',unit='x', title='',cmap='Blues_r',levels=[0,2.5,5,7.5,10,12.5,15,17.5,20,22.5,25,27.5,30,32.5,35],clabel='PV-EC scaling')
+            # self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,self.PV_EC_Efficiency_matrix,xmax=Max_efficiency_Solar_cell_2,ymax=Max_efficiency_Solar_cell_1,boxtext=r'$\eta_{\rm STE}$: ',unit='%',levels=[0,2,4,6,8,10,12,14,16],cmap='Greens_r',clabel=r'$\eta_{\rm STE}$ (%)')
+            # self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,self.PV_EC_Faradaic_efficiency_matrix,xmax=Max_efficiency_Solar_cell_2,ymax=Max_efficiency_Solar_cell_1,boxtext=r'$FE_{\rm C_2H_4}$: ',title='',unit='%',levels=[0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75],cmap='Blues_r',clabel=r'$FE_{\rm C_2H_4}$ (%)')
+            # self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,self.PV_EC_V_matrix,xmax=Max_efficiency_Solar_cell_2,ymax=Max_efficiency_Solar_cell_1,boxtext=r'$U_{\rm int}$: ',title='',unit='V',levels=np.arange(np.min(self.PV_EC_V_matrix),np.max(self.PV_EC_V_matrix)+0.05,0.05),detail='%1.2f',cmap='winter',clabel=r'$U_{\rm int}$ (V)',decimals=2)
+            # self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,self.PV_EC_J_matrix,xmax=Max_efficiency_Solar_cell_2,ymax=Max_efficiency_Solar_cell_1,boxtext=r'$j_{\rm s}$: ',title='',unit=' mA/cm$^2$',cmap='autumn',levels=np.array([0,3,6,9,12,15,18,21]),clabel=r'$j_{\rm s}$ (mA/cm$^2$)',decimals=1)
+            # self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,self.PV_EC_umol_C2H4_matrix,xmax=Max_efficiency_Solar_cell_2,ymax=Max_efficiency_Solar_cell_1,boxtext=r'$\nu_{\rm C_2H_4}$: ',unit=r' $\mu$mol/h/cm$^2$', title='',cmap='Purples_r',levels=[0,4,8,12,16,20,24,28,32,36],clabel=r'$\nu_{\rm C_2H_4}$ ($\mu$mol/h/cm$^2$)')
+            # self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,self.PV_EC_scaling_matrix,xmax=Max_efficiency_Solar_cell_2,ymax=Max_efficiency_Solar_cell_1,boxtext=r'$A_{\rm s}/A_{\rm CO_2RR}$: ',unit='x', title='',cmap='Blues_r',levels=[0,5,10,15,20,25,30,35],clabel=r'PV-EC scaling $A_{\rm s}/A_{\rm CO_2RR}$',decimals=1)
+            
+            self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,self.Efficiency_matrix[:,:,0]*electrolyzer_efficiency*Faradaic_efficiency,xmax=self.Max_efficiency_Solar_cell_2_index,ymax=self.Max_efficiency_Solar_cell_1_index,boxtext=r'$\eta_{\rm STE}$: ',unit='%',levels=[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16],detail='%1.1f',cmap='Greens_r',clabel=r'$\eta_{\rm STE}$ (%)')
+            self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,self.umol_cm2[:,:,0],xmax=self.Max_efficiency_Solar_cell_2_index,ymax=self.Max_efficiency_Solar_cell_1_index,boxtext=r'$\nu_{\rm C_2H_4}$: ',unit=r' $\mu$mol/h/cm$^2$', title='',cmap='Purples_r',levels=[0,4,8,12,16,20,24,28,32,36],clabel=r'$\nu_{\rm C_2H_4}$ ($\mu$mol/h/cm$^2$)')
+            self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,250/self.Solar_J_matrix[:,:,0],xmax=self.Max_efficiency_Solar_cell_2_index,ymax=self.Max_efficiency_Solar_cell_1_index,boxtext=r'$A_{\rm s}/A_{\rm CO_2RR}$: ',unit='x', title='',cmap='Blues_r',levels=[0,2.5,5,7.5,10,12.5,15,17.5,20,22.5,25,27.5,30,32.5,35],clabel=r'PV-EC scaling $A_{\rm s}/A_{\rm CO_2RR}$',decimals=1)
                  
     
     def Calculate_1on1(self):
@@ -735,7 +751,8 @@ class PEC_Cell():
                         V_op,J_op,Faradaic_efficiency=self.Find_current_match(Bandgap_1,Bandgap_2)
                         
                         while True:
-                            print(J_op,V_op,Faradaic_efficiency,self.Mirror_factor)
+                            if self.message_concentration:
+                                print(J_op,V_op,Faradaic_efficiency,self.Mirror_factor)
                             if J_op<self.J_max_ethylene*0.9:
                                 #Speed up calculations
                                 self.Mirror_factor=np.ceil(self.J_max_ethylene/(J_op/self.Mirror_factor))
@@ -757,8 +774,7 @@ class PEC_Cell():
                                 J_op=self.J_max_ethylene
                                 Faradaic_efficiency=self.Max_ethylene_percentage
                                 break
-                        if self.Bandgap_message==True:
-                                
+                        if self.message_concentration:
                             print(J_op,V_op,Faradaic_efficiency,self.Mirror_factor)                
                             
                             
@@ -801,9 +817,12 @@ class PEC_Cell():
                     
                     
                     if self.Bandgap_message==True:
-
+                        if self.Three_solar_cells:
                 
-                        print('{0:.2f}'.format(Bandgap_1)+'\t\t{0:.2f}'.format(Bandgap_2)+'\t\t{0:.2f}'.format(Bandgap_3)+'\t\t\t{0:.1f}'.format(Efficiency_matrix[count_x,count_y,count_z])+'\t\t\t{0:.2f}'.format(umol_C2H4_matrix[count_x,count_y,count_z])+'\t \t{0:.2f}'.format(Faradaic_efficiency_matrix[count_x,count_y,count_z])+'\t\t{0:.2f}'.format(V_matrix[count_x,count_y,count_z])+'\t{0:.2f}'.format(J_matrix[count_x,count_y,count_z]))
+                            print('{0:.2f}'.format(Bandgap_1)+'\t\t{0:.2f}'.format(Bandgap_2)+'\t\t{0:.2f}'.format(Bandgap_3)+'\t\t\t{0:.1f}'.format(Efficiency_matrix[count_x,count_y,count_z])+'\t\t\t{0:.2f}'.format(umol_C2H4_matrix[count_x,count_y,count_z])+'\t \t{0:.2f}'.format(Faradaic_efficiency_matrix[count_x,count_y,count_z])+'\t\t{0:.2f}'.format(V_matrix[count_x,count_y,count_z])+'\t{0:.2f}'.format(J_matrix[count_x,count_y,count_z]))
+                        else:
+                            print('{0:.2f}'.format(Bandgap_1)+'\t\t{0:.2f}'.format(Bandgap_2)+'\t\t{0:.1f}'.format(Efficiency_matrix[count_x,count_y,count_z])+'\t\t\t\t{0:.2f}'.format(umol_C2H4_matrix[count_x,count_y,count_z])+'\t\t\t{0:.2f}'.format(Faradaic_efficiency_matrix[count_x,count_y,count_z])+'\t{0:.2f}'.format(V_matrix[count_x,count_y,count_z])+'\t{0:.2f}'.format(J_matrix[count_x,count_y,count_z]))
+                      
                     count_z+=1
                 count_y+=1
                 
@@ -1258,13 +1277,13 @@ class PEC_Cell():
     
     
         if self.Reduction_mode=='HER': 
-          self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,self.one_one_Efficiency_matrix,xmax=Max_efficiency_Solar_cell_2,ymax=Max_efficiency_Solar_cell_1,boxtext='no',unit='%',levels=[0.5,3.5,6.5,9.5,12.5,15.5,18.5,21.5,24.5,27.5,30.5],cmap='Greens_r',clabel='STE efficiency (%)')
+          self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,self.one_one_Efficiency_matrix,xmax=Max_efficiency_Solar_cell_2,ymax=Max_efficiency_Solar_cell_1,boxtext='no',unit='%',levels=[0.5,3.5,6.5,9.5,12.5,15.5,18.5,21.5,24.5,27.5,30.5],cmap='Greens_r',clabel=r'$\eta_{\rm STH}$ (%)')
         else:
-            self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,self.one_one_Efficiency_matrix,xmax=Max_efficiency_Solar_cell_2,ymax=Max_efficiency_Solar_cell_1,boxtext='STE Efficiency: ',unit='%',levels=[0,2,4,6,8,10,12,14,16],cmap='Greens_r',clabel='STE efficiency (%)')
-            self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,self.one_one_Faradaic_efficiency_matrix,xmax=Max_efficiency_Solar_cell_2,ymax=Max_efficiency_Solar_cell_1,boxtext='Selectivity towards C$_2$H$_4$: ',title='',unit='%',levels=[0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75],cmap='Blues_r',clabel='Selectivity towards C$_2$H$_4$ (%)')
-            self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,self.one_one_V_matrix,xmax=Max_efficiency_Solar_cell_2,ymax=Max_efficiency_Solar_cell_1,boxtext='Voltage: ',title='',unit='V',levels=np.arange(np.min(self.one_one_V_matrix),np.max(self.one_one_V_matrix)+0.05,0.05),detail='%1.2f',cmap='winter',clabel='Voltage over catalysts (V)')
-            self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,self.one_one_J_matrix,xmax=Max_efficiency_Solar_cell_2,ymax=Max_efficiency_Solar_cell_1,boxtext='Current Density: ',title='',unit=' mA/cm$^2$',cmap='autumn',levels=[0,3,6,9,12,15,18,21],clabel='Current Density (mA/cm$^2$)')
-            self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,self.one_one_umol_C2H4_matrix,xmax=Max_efficiency_Solar_cell_2,ymax=Max_efficiency_Solar_cell_1,boxtext='',unit=r' $\mu$mol/h/cm$^2$ C$_2$H$_4$', title='',cmap='Purples_r',levels=[0,4,8,12,16,20,24,28,32,36],clabel=r'C$_2$H$_4$ production rate ($\mu$mol/h/cm$^2$)')
+            self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,self.one_one_Efficiency_matrix,xmax=Max_efficiency_Solar_cell_2,ymax=Max_efficiency_Solar_cell_1,boxtext=r'$\eta_{\rm STE}$: ',unit='%',levels=[0,2,4,6,8,10,12,14,16],cmap='Greens_r',clabel=r'$\eta_{\rm STE}$ (%)')
+            self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,self.one_one_Faradaic_efficiency_matrix,xmax=Max_efficiency_Solar_cell_2,ymax=Max_efficiency_Solar_cell_1,boxtext=r'$FE_{\rm C_2H_4}$: ',title='',unit='%',levels=[0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75],cmap='Blues_r',clabel=r'$FE_{\rm C_2H_4}$ (%)')
+            self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,self.one_one_V_matrix,xmax=Max_efficiency_Solar_cell_2,ymax=Max_efficiency_Solar_cell_1,boxtext=r'$U_{\rm int}$: ',title='',unit='V',levels=np.arange(np.min(self.one_one_V_matrix),np.max(self.one_one_V_matrix)+0.05,0.05),detail='%1.2f',cmap='winter',clabel=r'$U_{\rm int}$ (V)',decimals=2)
+            self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,self.one_one_J_matrix,xmax=Max_efficiency_Solar_cell_2,ymax=Max_efficiency_Solar_cell_1,boxtext=r'$j_{\rm s}$: ',title='',unit=' mA/cm$^2$',cmap='autumn',levels=[0,3,6,9,12,15,18,21],clabel=r'$j_{\rm s}$ (mA/cm$^2$)',decimals=1)
+            self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,self.one_one_umol_C2H4_matrix,xmax=Max_efficiency_Solar_cell_2,ymax=Max_efficiency_Solar_cell_1,boxtext=r'$\nu_{\rm C_2H_4}$: ',unit=r' $\mu$mol/h/cm$^2$', title='',cmap='Purples_r',levels=[0,4,8,12,16,20,24,28,32,36],clabel=r'$\nu_{\rm C_2H_4}$ ($\mu$mol/h/cm$^2$)')
             
         
     
@@ -1275,12 +1294,12 @@ class PEC_Cell():
         Max_efficiency_Solar_cell_2=np.where(self.Sparse_Coverage_Efficiency_matrix==np.max(self.Sparse_Coverage_Efficiency_matrix))[1][0]
         Max_efficiency_Solar_cell_1=np.where(self.Sparse_Coverage_Efficiency_matrix==np.max(self.Sparse_Coverage_Efficiency_matrix))[0][0]
         
-        self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,self.Sparse_Coverage_Efficiency_matrix,xmax=Max_efficiency_Solar_cell_2,ymax=Max_efficiency_Solar_cell_1,boxtext='STE Efficiency: ',unit='%',levels=[0,2,4,6,8,10,12,14,16],cmap='Greens_r',clabel='STE efficiency (%)')
-        self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,self.Sparse_Coverage_Faradaic_efficiency_matrix,xmax=Max_efficiency_Solar_cell_2,ymax=Max_efficiency_Solar_cell_1,boxtext='FE overall: ',title='',unit='%',levels=[0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75],cmap='Blues_r',clabel='Faradaic efficiency (%)')
-        self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,self.Sparse_Coverage_V_matrix,xmax=Max_efficiency_Solar_cell_2,ymax=Max_efficiency_Solar_cell_1,boxtext='Voltage: ',title='',unit='V',levels=np.arange(np.min(self.Sparse_Coverage_V_matrix),np.max(self.Sparse_Coverage_V_matrix)+0.05,0.05),detail='%1.2f',cmap='winter',clabel='Voltage over catalysts (V)')
-        self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,self.Sparse_Coverage_J_matrix,xmax=Max_efficiency_Solar_cell_2,ymax=Max_efficiency_Solar_cell_1,boxtext='Current Density: ',title='',unit=' mA/cm$^2$',cmap='autumn',levels=[0,3,6,9,12,15,18,21],clabel='Current Density (mA/cm$^2$)')
-        self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,self.Sparse_Coverage_umol_C2H4_matrix,xmax=Max_efficiency_Solar_cell_2,ymax=Max_efficiency_Solar_cell_1,boxtext='',unit=r' $\mu$mol/h/cm$^2$ C$_2$H$_4$', title='',cmap='Purples_r',levels=[0,4,8,12,16,20,24,28,32,36],clabel=r'C$_2$H$_4$ production rate ($\mu$mol/h/cm$^2$)')
-        self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,self.Sparse_Coverage_CO2_catalyst_concentration_matrix,xmax=Max_efficiency_Solar_cell_2,ymax=Max_efficiency_Solar_cell_1,boxtext='Current concentration on CO$_2$RR catalyst: ',unit='x', title='',cmap='Reds',levels=[0,5,10,15,20,25,30,35,40,45,50],clabel='Current concentration CO$_2$RR catalyst',)
+        self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,self.Sparse_Coverage_Efficiency_matrix,xmax=Max_efficiency_Solar_cell_2,ymax=Max_efficiency_Solar_cell_1,boxtext=r'$\eta_{\rm STE}$: ',unit='%',levels=[0,2,4,6,8,10,12,14,16],cmap='Greens_r',clabel=r'$\eta_{\rm STE}$ (%)')
+        self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,self.Sparse_Coverage_Faradaic_efficiency_matrix,xmax=Max_efficiency_Solar_cell_2,ymax=Max_efficiency_Solar_cell_1,boxtext=r'$FE_{\rm C_2H_4}$: ',title='',unit='%',levels=[0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75],cmap='Blues_r',clabel=r'$FE_{\rm C_2H_4}$ (%)')
+        self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,self.Sparse_Coverage_V_matrix,xmax=Max_efficiency_Solar_cell_2,ymax=Max_efficiency_Solar_cell_1,boxtext=r'$U_{\rm int}$: ',title='',unit='V',levels=np.arange(np.min(self.Sparse_Coverage_V_matrix),np.max(self.Sparse_Coverage_V_matrix)+0.05,0.05),detail='%1.2f',cmap='winter',decimals=2,clabel=r'$U_{\rm int}$ (V)')
+        self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,self.Sparse_Coverage_J_matrix,xmax=Max_efficiency_Solar_cell_2,ymax=Max_efficiency_Solar_cell_1,boxtext=r'$j_{\rm s}$: ',title='',unit=' mA/cm$^2$',cmap='autumn',levels=[0,3,6,9,12,15,18,21],clabel=r'$j_{\rm s}$ (mA/cm$^2$)',decimals=1)
+        self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,self.Sparse_Coverage_umol_C2H4_matrix,xmax=Max_efficiency_Solar_cell_2,ymax=Max_efficiency_Solar_cell_1,boxtext=r'$\nu_{\rm C_2H_4}$: ',unit=r' $\mu$mol/h/cm$^2$', title='',cmap='Purples_r',levels=[0,4,8,12,16,20,24,28,32,36],clabel=r'$\nu_{\rm C_2H_4}$ ($\mu$mol/h/cm$^2$)')
+        self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,self.Sparse_Coverage_CO2_catalyst_concentration_matrix,xmax=Max_efficiency_Solar_cell_2,ymax=Max_efficiency_Solar_cell_1,boxtext=r'$A_{\rm s}/A_{\rm CO_2RR}$: ',unit='', title='',cmap='Reds',levels=[0,5,10,15,20,25,30,35,40,45,50],clabel=r'$A_{\rm s}/A_{\rm CO_2RR}$',decimals=1)
         
         
     def Plot_solar_concentration_matrix(self):
@@ -1290,12 +1309,12 @@ class PEC_Cell():
         Max_efficiency_Solar_cell_2=np.where(self.solar_light_concentration_Efficiency_matrix==np.max(self.solar_light_concentration_Efficiency_matrix))[1][0]
         Max_efficiency_Solar_cell_1=np.where(self.solar_light_concentration_Efficiency_matrix==np.max(self.solar_light_concentration_Efficiency_matrix))[0][0]
         
-        self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,self.solar_light_concentration_Efficiency_matrix,xmax=Max_efficiency_Solar_cell_2,ymax=Max_efficiency_Solar_cell_1,boxtext='STE Efficiency: ',unit='%',levels=[0,2,4,6,8,10,12,14,16],cmap='Greens_r',clabel='STE efficiency (%)')
-        self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,self.solar_light_concentration_Faradaic_efficiency_matrix,xmax=Max_efficiency_Solar_cell_2,ymax=Max_efficiency_Solar_cell_1,boxtext='FE overall: ',title='',unit='%',levels=[0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75],cmap='Blues_r',clabel='Faradaic efficiency (%)')
-        self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,self.solar_light_concentration_V_matrix,xmax=Max_efficiency_Solar_cell_2,ymax=Max_efficiency_Solar_cell_1,boxtext='Voltage: ',title='',unit='V',levels=np.arange(np.min(self.solar_light_concentration_V_matrix),np.max(self.solar_light_concentration_V_matrix)+0.05,0.05),detail='%1.2f',cmap='winter',clabel='Voltage over catalysts (V)')
-        self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,self.solar_light_concentration_J_matrix,xmax=Max_efficiency_Solar_cell_2,ymax=Max_efficiency_Solar_cell_1,boxtext='Current Density: ',title='',unit=' mA/cm$^2$',cmap='autumn',levels=np.array([0,3,6,9,12,15,18,21])*self.J_max_ethylene/20,clabel='Current Density (mA/cm$^2$)')
-        self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,self.solar_light_concentration_umol_C2H4_matrix,xmax=Max_efficiency_Solar_cell_2,ymax=Max_efficiency_Solar_cell_1,boxtext='',unit=r' $\mu$mol/h/cm$^2$ C$_2$H$_4$', title='',cmap='Purples_r',levels=[0,4,8,12,16,20,24,28,32,36],clabel=r'C$_2$H$_4$ production rate ($\mu$mol/h/cm$^2$)')
-        self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,self.solar_light_concentration_mirror_matrix,xmax=Max_efficiency_Solar_cell_2,ymax=Max_efficiency_Solar_cell_1,boxtext='Solar light concentration by factor: ',unit='x', title='',cmap='Blues_r',levels=[0,5,10,15,20,25,30,35],clabel='Solar light concentration')
+        self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,self.solar_light_concentration_Efficiency_matrix,xmax=Max_efficiency_Solar_cell_2,ymax=Max_efficiency_Solar_cell_1,boxtext=r'$\eta_{\rm STE}$: ',unit='%',levels=[0,2,4,6,8,10,12,14,16],cmap='Greens_r',clabel=r'$\eta_{\rm STE}$ (%)')
+        self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,self.solar_light_concentration_Faradaic_efficiency_matrix,xmax=Max_efficiency_Solar_cell_2,ymax=Max_efficiency_Solar_cell_1,boxtext=r'$FE_{\rm C_2H_4}$: ',title='',unit='%',levels=[0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75],cmap='Blues_r',clabel=r'$FE_{\rm C_2H_4}$ (%)')
+        self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,self.solar_light_concentration_V_matrix,xmax=Max_efficiency_Solar_cell_2,ymax=Max_efficiency_Solar_cell_1,boxtext=r'$U_{\rm int}$: ',title='',unit='V',levels=np.arange(np.min(self.solar_light_concentration_V_matrix),np.max(self.solar_light_concentration_V_matrix)+0.05,0.05),detail='%1.2f',cmap='winter',clabel=r'$U_{\rm int}$ (V)',decimals=2)
+        self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,self.solar_light_concentration_J_matrix,xmax=Max_efficiency_Solar_cell_2,ymax=Max_efficiency_Solar_cell_1,boxtext=r'$j_{\rm s}$: ',title='',unit=' mA/cm$^2$',cmap='autumn',levels=np.array([0,3,6,9,12,15,18,21])*self.J_max_ethylene/20,clabel=r'$j_{\rm s}$ (mA/cm$^2$)',decimals=1)
+        self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,self.solar_light_concentration_umol_C2H4_matrix,xmax=Max_efficiency_Solar_cell_2,ymax=Max_efficiency_Solar_cell_1,boxtext=r'$\nu_{\rm C_2H_4}$: ',unit=r' $\mu$mol/h/cm$^2$', title='',cmap='Purples_r',levels=[0,4,8,12,16,20,24,28,32,36],clabel=r'$\nu_{\rm C_2H_4}$ ($\mu$mol/h/cm$^2$)')
+        self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,self.solar_light_concentration_mirror_matrix,xmax=Max_efficiency_Solar_cell_2,ymax=Max_efficiency_Solar_cell_1,boxtext='$C$: ',unit='', title='',cmap='Blues_r',levels=[0,5,10,15,20,25,30,35],clabel='Solar light concentration $C$',decimals=1)
            
     def Plot_PV_EC_matrix(self):
     
@@ -1304,16 +1323,16 @@ class PEC_Cell():
         Max_efficiency_Solar_cell_2=np.where(self.PV_EC_Efficiency_matrix==np.max(self.PV_EC_Efficiency_matrix))[1][0]
         Max_efficiency_Solar_cell_1=np.where(self.PV_EC_Efficiency_matrix==np.max(self.PV_EC_Efficiency_matrix))[0][0]
         
-        self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,self.PV_EC_Efficiency_matrix,xmax=Max_efficiency_Solar_cell_2,ymax=Max_efficiency_Solar_cell_1,boxtext='STE Efficiency: ',unit='%',levels=[0,2,4,6,8,10,12,14,16],cmap='Greens_r',clabel='STE efficiency (%)')
-        self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,self.PV_EC_Faradaic_efficiency_matrix,xmax=Max_efficiency_Solar_cell_2,ymax=Max_efficiency_Solar_cell_1,boxtext='FE overall: ',title='',unit='%',levels=[0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75],cmap='Blues_r',clabel='Faradaic efficiency (%)')
-        self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,self.PV_EC_V_matrix,xmax=Max_efficiency_Solar_cell_2,ymax=Max_efficiency_Solar_cell_1,boxtext='Voltage: ',title='',unit='V',levels=np.arange(np.min(self.PV_EC_V_matrix),np.max(self.PV_EC_V_matrix)+0.05,0.05),detail='%1.2f',cmap='winter',clabel='Voltage over catalysts (V)')
-        self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,self.PV_EC_J_matrix,xmax=Max_efficiency_Solar_cell_2,ymax=Max_efficiency_Solar_cell_1,boxtext='Current Density: ',title='',unit=' mA/cm$^2$',cmap='autumn',levels=np.array([0,3,6,9,12,15,18,21]),clabel='Current Density (mA/cm$^2$)')
-        self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,self.PV_EC_umol_C2H4_matrix,xmax=Max_efficiency_Solar_cell_2,ymax=Max_efficiency_Solar_cell_1,boxtext='',unit=r' $\mu$mol/h/cm$^2$ C$_2$H$_4$', title='',cmap='Purples_r',levels=[0,4,8,12,16,20,24,28,32,36],clabel=r'C$_2$H$_4$ production rate ($\mu$mol/h/cm$^2$)')
-        self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,self.PV_EC_scaling_matrix,xmax=Max_efficiency_Solar_cell_2,ymax=Max_efficiency_Solar_cell_1,boxtext='PV-CO$_2$RR catalyst area scaling factor: ',unit='x', title='',cmap='Blues_r',levels=[0,5,10,15,20,25,30,35],clabel='PV-EC scaling')
+        self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,self.PV_EC_Efficiency_matrix,xmax=Max_efficiency_Solar_cell_2,ymax=Max_efficiency_Solar_cell_1,boxtext=r'$\eta_{\rm STE}$: ',unit='%',levels=[0,2,4,6,8,10,12,14,16],cmap='Greens_r',clabel=r'$\eta_{\rm STE}$ (%)')
+        self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,self.PV_EC_Faradaic_efficiency_matrix,xmax=Max_efficiency_Solar_cell_2,ymax=Max_efficiency_Solar_cell_1,boxtext=r'$FE_{\rm C_2H_4}$: ',title='',unit='%',levels=[0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75],cmap='Blues_r',clabel=r'$FE_{\rm C_2H_4}$ (%)')
+        self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,self.PV_EC_V_matrix,xmax=Max_efficiency_Solar_cell_2,ymax=Max_efficiency_Solar_cell_1,boxtext=r'$U_{\rm int}$: ',title='',unit='V',levels=np.arange(np.min(self.PV_EC_V_matrix),np.max(self.PV_EC_V_matrix)+0.05,0.05),detail='%1.2f',cmap='winter',clabel=r'$U_{\rm int}$ (V)',decimals=2)
+        self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,self.PV_EC_J_matrix,xmax=Max_efficiency_Solar_cell_2,ymax=Max_efficiency_Solar_cell_1,boxtext=r'$j_{\rm s}$: ',title='',unit=' mA/cm$^2$',cmap='autumn',levels=np.array([0,3,6,9,12,15,18,21]),clabel=r'$j_{\rm s}$ (mA/cm$^2$)',decimals=1)
+        self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,self.PV_EC_umol_C2H4_matrix,xmax=Max_efficiency_Solar_cell_2,ymax=Max_efficiency_Solar_cell_1,boxtext=r'$\nu_{\rm C_2H_4}$: ',unit=r' $\mu$mol/h/cm$^2$', title='',cmap='Purples_r',levels=[0,4,8,12,16,20,24,28,32,36],clabel=r'$\nu_{\rm C_2H_4}$ ($\mu$mol/h/cm$^2$)')
+        self.Plot_matrix(Solar_cell_1_range,Solar_cell_2_range,self.PV_EC_scaling_matrix,xmax=Max_efficiency_Solar_cell_2,ymax=Max_efficiency_Solar_cell_1,boxtext=r'$A_{\rm s}/A_{\rm CO_2RR}$: ',unit='x', title='',cmap='Blues_r',levels=[0,5,10,15,20,25,30,35],clabel=r'PV-EC scaling $A_{\rm s}/A_{\rm CO_2RR}$',decimals=1)
               
        
         
-    def Plot_matrix(self,SC_1_set,SC_2_set,Z,xmax=0,ymax=0,boxtext='STE: ',unit='%',levels=[0],detail='%1.1f',cmap='brg',title='',clabel=''):
+    def Plot_matrix(self,SC_1_set,SC_2_set,Z,xmax=0,ymax=0,boxtext='STE: ',unit='%',levels=[0],detail='%1.1f',cmap='brg',title='',clabel='',decimals=0):
         X=np.meshgrid(SC_2_set,SC_1_set)[0]
         Y=np.meshgrid(SC_2_set,SC_1_set)[1]
         plt.figure()
@@ -1322,10 +1341,10 @@ class PEC_Cell():
         if max(levels)==0:
             levels= np.arange(np.min(Z),np.max(Z)*1.1,(np.max(Z)-np.min(Z))/10)
 
-            
-        CS1 = ax.contourf(X, Y, Z,levels=levels,cmap=cmap)
+        CS1 = ax.contourf(X, Y, Z,levels=levels,cmap=cmap)  
+        # CS1 = ax.contourf(X, Y, Z,levels=np.linspace(np.min(levels),np.max(levels),1000),cmap=cmap)
         CS2 = ax.contour(X, Y, Z,levels=levels,colors='w')
-        cbar=figcontour.colorbar(CS1)    
+        cbar=figcontour.colorbar(CS1,ticks=levels)    
         cbar.ax.set_ylabel(clabel,fontsize=14)
         if xmax==0 and ymax==0:
             xmax=np.where(Z==np.max(Z))[1][0]
@@ -1335,10 +1354,18 @@ class PEC_Cell():
         ax.set_title(title)
         ax.set_xlabel(r'$\it{E}$$_{\rm g2}$ (eV)',fontsize=14)
         ax.set_ylabel(r'$\it{E}$$_{\rm g1}$ (eV)',fontsize=14)
-        props = dict(boxstyle='round', facecolor='white', alpha=1)
+        props = dict(boxstyle='round,pad=0.5', facecolor='white', alpha=1)
         if boxtext!='no':
-            ax.text(1.05*min(SC_2_set),0.95*max(SC_1_set),'{0:.2f}'.format(SC_1_set[ymax])+'eV/'+'{0:.2f}'.format(SC_2_set[xmax])+'eV \n'+boxtext+'{0:.1f}'.format(Z[ymax,xmax])+unit,bbox=props,fontsize=13)
-           
+            if decimals==1:
+                ax.text(1.05*min(SC_2_set),0.95*max(SC_1_set),'{0:.2f}'.format(SC_1_set[ymax])+'eV/'+'{0:.2f}'.format(SC_2_set[xmax])+'eV \n'+boxtext+'{0:.1f}'.format(Z[ymax,xmax])+unit,bbox=props,fontsize=12)
+            elif decimals==2:
+                ax.text(1.05*min(SC_2_set),0.95*max(SC_1_set),'{0:.2f}'.format(SC_1_set[ymax])+'eV/'+'{0:.2f}'.format(SC_2_set[xmax])+'eV \n'+boxtext+'{0:.2f}'.format(Z[ymax,xmax])+unit,bbox=props,fontsize=12)
+            elif decimals==0:
+                ax.text(1.05*min(SC_2_set),0.95*max(SC_1_set),'{0:.2f}'.format(SC_1_set[ymax])+'eV/'+'{0:.2f}'.format(SC_2_set[xmax])+'eV \n'+boxtext+'{0:.0f}'.format(Z[ymax,xmax])+unit,bbox=props,fontsize=12)
+            else:
+                #Default 1 decimal
+                ax.text(1.05*min(SC_2_set),0.95*max(SC_1_set),'{0:.2f}'.format(SC_1_set[ymax])+'eV/'+'{0:.2f}'.format(SC_2_set[xmax])+'eV \n'+boxtext+'{0:.1f}'.format(Z[ymax,xmax])+unit,bbox=props,fontsize=12)
+          
                 
     def Vary_Solar_Intensity(self,Bandgap_1,Bandgap_2,Solar_Concentration_range=np.arange(0.1,1.5,0.01),plot_graph_solar=True):
         #Used for variations in solar efficiency
@@ -1364,7 +1391,8 @@ class PEC_Cell():
             
             self.Solar_Concentration=solar_concentration
             V_op,J_op,Faradaic_efficiency=self.Find_current_match(Bandgap_1,Bandgap_2)
-            print(J_op*self.Co2RcatalystConcentrator,V_op,Faradaic_efficiency)
+            if self.message_variation:
+                print(J_op*self.Co2RcatalystConcentrator,V_op,Faradaic_efficiency)
             
 
             Efficiencies[i]=self.STE(J_op,Faradaic_efficiency)
@@ -1378,17 +1406,17 @@ class PEC_Cell():
     
         if plot_graph_solar:
             
-            self.plot_graph_vary_intensity(Solar_Concentration_range *Standard_Solarpower, Efficiencies, 'Solar irradiation (mW/cm$^2$)','STE (%)')
-            self.plot_graph_vary_intensity(Solar_Concentration_range *Standard_Solarpower, FEs, 'Solar irradiation (mW/cm$^2$)','Overall Faradaic efficiency (%)')
-            self.plot_graph_vary_intensity(Solar_Concentration_range *Standard_Solarpower, Voltages, 'Solar irradiation (mW/cm$^2$)','Overall Voltage (V)')
-            self.plot_graph_vary_intensity(Solar_Concentration_range *Standard_Solarpower, Currents, 'Solar irradiation (mW/cm$^2$)','Used photocurrent (mA/cm$^2$)',linear=1)
-            self.plot_graph_vary_intensity(Solar_Concentration_range *Standard_Solarpower,  umol_C2H4, 'Solar irradiation (mW/cm$^2$)',r'Produced C$_2$H$_4$ ($\mu$mol / h / cm$^2$)',linear=1)
+            self.plot_graph_vary_intensity(Solar_Concentration_range *Standard_Solarpower, Efficiencies, 'Solar insolation (mW/cm$^2$)',r'$\eta_{\rm STE}$ (%)')
+            self.plot_graph_vary_intensity(Solar_Concentration_range *Standard_Solarpower, FEs, 'Solar insolation (mW/cm$^2$)',r'Overall FE_${\rm C_2H_4}$ (%)')
+            self.plot_graph_vary_intensity(Solar_Concentration_range *Standard_Solarpower, Voltages, 'Solar insolation (mW/cm$^2$)',r'U$_{int}$')
+            self.plot_graph_vary_intensity(Solar_Concentration_range *Standard_Solarpower, Currents, 'Solar insolation (mW/cm$^2$)','j_$s$ (mA/cm$^2$)',linear=1)
+            self.plot_graph_vary_intensity(Solar_Concentration_range *Standard_Solarpower,  umol_C2H4, 'Solar insolation (mW/cm$^2$)',r'$\nu_{\rm C_2H_4}$ ($\mu$mol / h / cm$^2$)',linear=1)
             
             
     
         return Efficiencies,FEs,Voltages,Currents,umol_C2H4
         
-    def plot_graph_vary_intensity(self,x,y,xlabel='',ylabel='',title='',linear='0'):
+    def plot_graph_vary_intensity(self,x,y,xlabel='',ylabel='',title='',linear=0):
         
         
         if self.Mirror_factor==1:
@@ -1397,7 +1425,6 @@ class PEC_Cell():
             Design_value=90*self.Mirror_factor
         plt.figure()
         self.figcontour, ax = plt.subplots()
-        print(linear)
         if linear==1:
             y_value_100W=y[np.where(abs(x-Design_value)==min(abs(x-Design_value)))[0][0]]
             y_linear=np.linspace(0,y_value_100W*max(x)/Design_value,10)
@@ -1405,7 +1432,7 @@ class PEC_Cell():
             
         plt.plot(x,y,'c',label='C$_2$H$_4$ production rate',)
 
-        ax.legend(fontsize=13)
+        # ax.legend(fontsize=13)
         ax.set_xlabel(xlabel,fontsize=14)
         ax.set_ylabel(ylabel,fontsize=14)
         ax.set_title(title)  

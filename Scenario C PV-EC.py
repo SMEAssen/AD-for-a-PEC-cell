@@ -13,13 +13,14 @@ Shu Hu et al., Energy Environ. Sci., ,6, 2984-2993 (2013); https://doi.org/10.10
 @author: assensme
 """
 
-import os, sys; sys.path.append(os.path.dirname(os.path.realpath(r'C:\Users\assensme\Documents\Programming\PEC\PEC_cell.py')))
+import os, sys; sys.path.append(os.path.dirname(os.path.realpath(r'..\PEC_cell.py')))
 import matplotlib.pyplot as plt
 import PEC_cell
 
 
 C=PEC_cell.PEC_Cell()
 C.message_spectrum_loaded=False
+C.Bandgap_message=False
 C.Calculate_setup(scenario='Scenario C: PV-EC')
 plt.show()
 

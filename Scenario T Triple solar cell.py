@@ -12,7 +12,7 @@ Shu Hu et al., Energy Environ. Sci., ,6, 2984-2993 (2013); https://doi.org/10.10
 @author: assensme
 """
 
-import os, sys; sys.path.append(os.path.dirname(os.path.realpath(r'C:\Users\assensme\Documents\Programming\PEC\PEC_cell.py')))
+import os, sys; sys.path.append(os.path.dirname(os.path.realpath(r'..\PEC_cell.py')))
 import matplotlib.pyplot as plt
 import PEC_cell
 import numpy as np
@@ -67,7 +67,7 @@ ax.scatter3D(x[x_slice],y[y_slice],z[z_slice],'k')
 ax.set_xlabel('Bandgap middle SC', fontweight ='bold') 
 ax.set_ylabel('Bandgap top SC', fontweight ='bold') 
 ax.set_zlabel('Bandgap bottom SC', fontweight ='bold')
-cbar=fig.colorbar(sctt, ax = ax, shrink = 0.5, aspect = 5,label='STE efficiency')
+cbar=fig.colorbar(sctt, ax = ax, shrink = 0.5, aspect = 5,label=r'$\eta_{STE}$')
 
 
 

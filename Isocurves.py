@@ -11,13 +11,13 @@ The OER catalyst is assumed to be NiFeOx, R_solution=5
 """
 
     
-import os, sys; sys.path.append(os.path.dirname(os.path.realpath(r'C:\Users\assensme\Documents\Programming\PEC\PEC_cell.py')))
+import os, sys; sys.path.append(os.path.dirname(os.path.realpath(r'..\PEC_cell.py')))
 import numpy as np
 import matplotlib.pyplot as plt
 import PEC_cell
 voltage_range=np.arange(-0.0,-1.7,-0.05)
 j_range=np.zeros(len(voltage_range))
-FE_range=np.arange(0,100)
+FE_range=np.arange(0,101)
 
 for i in range(len(voltage_range)):
     P=PEC_cell.PEC_Cell()
@@ -30,10 +30,11 @@ for i in range(len(voltage_range)):
     P.Calculate_setup(scenario='VariableCO2RRcatalyst')
     j_range[i]=np.max(P.Sparse_Coverage_J_matrix)
     print(r'At $\eta_{\rm CO2RR}$',voltage_range[i],'j_s=',j_range[i])
+    print(P.Solar_cell_combination)
 
 plt.figure()
 plt.plot(voltage_range,j_range)
-plt.xlabel(r'$\eta_{\rm CO2RR}$ (V vs RHE)',fontsize=14)
+plt.xlabel(r'$\eta_{\rm CO_2RR}$ (V vs RHE)',fontsize=14)
 plt.ylabel(r'Maximum $j_{\rm s}$ (mA/cm$^2$)',fontsize=14)
 
 
@@ -55,26 +56,34 @@ plt.figure()
 
 unit=r' $\mu$mol/h/cm$^2$ C$_2$H$_4$'
 cmap='Purples_r'
-levels=[10,20,30,40,50,60,70]
+levels=[10,20,30,40,60,70]
 clabel=r'C$_2$H$_4$ production rate ($\mu$mol/h/cm$^2$)'
 figcontour, ax = plt.subplots()
   
     
 CS1 = ax.contourf(X, Y, umol_production,levels=np.arange(-20,100,0.01),cmap=cmap)
-CS2 = ax.contour(X, Y, umol_production,levels=levels,colors='w')
-ax.clabel(CS2, fontsize=12,manual=[(-0.1,10),(-0.1,25),(-0.1,37),(-0.1,52),(-0.1,65),(-0.1,78),(-0.1,91.9)])
+CS2 = ax.contour(X, Y, umol_production,levels=levels,colors='w',linestyle='dashed')
+
+plt.plot(voltage_range[np.array([0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12,13])],np.array([68, 69, 71, 73, 75, 77, 79, 83, 85, 89, 92, 95.5, 97,100]),'--w')
+#Cannot get a dashed contour plot for some reason                                        
+                              
+                                        
+# CS3 = ax.contour(X, Y, umol_production,levels=[50],colors='w')
+ax.clabel(CS2, fontsize=12,manual=[(-0.1,10),(-0.1,25),(-0.1,37),(-0.1,52),(-0.1,78),(-0.1,91.9)])
 plt.plot(voltage_range,voltage_range*0+0.1,'w')
 
 # cbar=figcontour.colorbar(CS1,ticks=np.arange(0,80,10))    
 # cbar.ax.set_ylabel(clabel)
 
-plt.xlabel(r'$\eta_{\rm CO2RR}$ (V vs RHE)',fontsize=14)
+plt.xlabel(r'$\eta_{\rm CO_2RR}$ (V vs RHE)',fontsize=14)
 
-plt.ylabel('Faradaic Efficiency (%)',fontsize=14)
+plt.ylabel(r'$FE_{\rm C_2H_4}$ (%)',fontsize=14)
 
 plt.plot(-0.61,61.2,'ok',markersize=9)
 # plt.plot(-0.61,70,'*k')
 # plt.plot(-0.4,61.2,'*k')
+plt.ylim([0,99])
+plt.yticks([0,20,40,60,80,100])
 
 plt.plot(-1.55,60.7,'Xk',markersize=9)
 plt.plot(-0.68,57,'^k',markersize=9)
@@ -83,7 +92,7 @@ plt.plot(-1.05,51.5,'sk',markersize=9)
 plt.plot(-1.05,38.7,'dk',markersize=9)
 plt.plot(-1.00,33.2,'pk',markersize=9)
 
-
+plt.show()
 plt.figure()
 
 boxtext='STE Efficiency: '
@@ -99,9 +108,9 @@ ax.clabel(CS2, fontsize=12,manual=[(-0.1,20),(-0.1,38),(-0.1,55),(-0.1,75),(-0.1
 # cbar=figcontour.colorbar(CS1,ticks=levels)    
 # cbar.ax.set_ylabel(clabel)
 
-plt.xlabel(r'$\eta_{\rm CO2RR}$ (V vs RHE)',fontsize=14)
+plt.xlabel(r'$\eta_{\rm CO_2RR}$ (V vs RHE)',fontsize=14)
 
-plt.ylabel('Faradaic Efficiency (%)',fontsize=14)
+plt.ylabel(r'$FE_{\rm C_2H_4}$ (%)',fontsize=14)
 
 plt.plot(-0.61,61.2,'ok',markersize=9)
 # plt.plot(-0.61,70,'*k')
