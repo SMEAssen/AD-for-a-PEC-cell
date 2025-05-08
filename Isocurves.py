@@ -11,7 +11,7 @@ The OER catalyst is assumed to be NiFeOx, R_solution=5
 """
 
     
-import os, sys; sys.path.append(os.path.dirname(os.path.realpath(r'..\PEC_cell.py')))
+import os, sys; sys.path.append(os.path.dirname(os.path.realpath(r'C:\Users\assensme\Documents\Programming\PEC\PEC_cell.py')))
 import numpy as np
 import matplotlib.pyplot as plt
 import PEC_cell
@@ -80,8 +80,8 @@ plt.xlabel(r'$\eta_{\rm CO_2RR}$ (V vs RHE)',fontsize=14)
 plt.ylabel(r'$FE_{\rm C_2H_4}$ (%)',fontsize=14)
 
 plt.plot(-0.61,61.2,'ok',markersize=9)
-# plt.plot(-0.61,70,'*k')
-# plt.plot(-0.4,61.2,'*k')
+plt.plot(-0.53,58,'*k')
+
 plt.ylim([0,99])
 plt.yticks([0,20,40,60,80,100])
 
@@ -113,8 +113,7 @@ plt.xlabel(r'$\eta_{\rm CO_2RR}$ (V vs RHE)',fontsize=14)
 plt.ylabel(r'$FE_{\rm C_2H_4}$ (%)',fontsize=14)
 
 plt.plot(-0.61,61.2,'ok',markersize=9)
-# plt.plot(-0.61,70,'*k')
-# plt.plot(-0.4,61.2,'*k')
+plt.plot(-0.53,58,'*k')
 
 plt.plot(-1.55,60.7,'Xk',markersize=9)
 plt.plot(-0.68,57,'^k',markersize=9)

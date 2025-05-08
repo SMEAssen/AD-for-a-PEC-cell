@@ -21,6 +21,8 @@ import PEC_cell
 
 F=PEC_cell.PEC_Cell()
 F.message_spectrum_loaded=False
+F.Fixed_ethylene_output=False
+F.Co2RcatalystConcentrator=1
 F.Calculate_setup(scenario='Scenario F: no concentration')
 plt.show()
 print('Scenario F: No concentration')

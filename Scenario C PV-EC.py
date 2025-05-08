@@ -13,7 +13,7 @@ Shu Hu et al., Energy Environ. Sci., ,6, 2984-2993 (2013); https://doi.org/10.10
 @author: assensme
 """
 
-import os, sys; sys.path.append(os.path.dirname(os.path.realpath(r'..\PEC_cell.py')))
+import os, sys; sys.path.append(os.path.dirname(os.path.realpath(r'C:\Users\assensme\Documents\Programming\PEC\PEC_cell.py')))
 import matplotlib.pyplot as plt
 import PEC_cell
 

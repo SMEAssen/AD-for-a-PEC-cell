@@ -14,7 +14,7 @@ Jing Gao  Dan Ren Xueyi Guo Shaik Mohammed Zakeeruddin and  Michael Grätzel  Fa
 @author: assensme
 """
 
-import os, sys; sys.path.append(os.path.dirname(os.path.realpath(r'..\PEC_cell.py')))
+import os, sys; sys.path.append(os.path.dirname(os.path.realpath(r'C:\Users\assensme\Documents\Programming\PEC\PEC_cell.py')))
 import matplotlib.pyplot as plt
 import PEC_cell
 
@@ -26,6 +26,7 @@ A.Eg_completed=False
 A.message_spectrum_loaded=False
 A.message_variation=False
 A.Calculate_setup(scenario='Scenario A: sparse coverage')
+A.Fixed_ethylene_output=False
 A.Vary_Solar_Intensity(A.Solar_cell_combination[0],A.Solar_cell_combination[1])
 plt.show()
 
@@ -36,6 +37,7 @@ CuAg.Eg_completed=False
 CuAg.message_spectrum_loaded=False
 CuAg.message_variation=False
 CuAg.Calculate_setup(scenario='CuAg-NiFeOx_high_pH')
+CuAg.Fixed_ethylene_output=False
 CuAg.Vary_Solar_Intensity(CuAg.Solar_cell_combination[0],CuAg.Solar_cell_combination[1])
 plt.show()
 
