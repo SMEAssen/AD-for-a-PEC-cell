@@ -12,7 +12,7 @@ Shu Hu et al., Energy Environ. Sci., ,6, 2984-2993 (2013); https://doi.org/10.10
 @author: assensme
 """
 
-import os, sys; sys.path.append(os.path.dirname(os.path.realpath(r'..\PEC_cell.py')))
+import os, sys; sys.path.append(os.path.dirname(os.path.realpath(r'...\PEC_cell.py')))
 import matplotlib.pyplot as plt
 import PEC_cell
 import numpy as np
@@ -64,10 +64,11 @@ sctt = ax.scatter3D(X[E!=0], Y[E!=0], Z[E!=0],
                     marker ='o')
 
 ax.scatter3D(x[x_slice],y[y_slice],z[z_slice],'k') 
-ax.set_xlabel('Bandgap middle SC', fontweight ='bold') 
-ax.set_ylabel('Bandgap top SC', fontweight ='bold') 
-ax.set_zlabel('Bandgap bottom SC', fontweight ='bold')
-cbar=fig.colorbar(sctt, ax = ax, shrink = 0.5, aspect = 5,label=r'$\eta_{STE}$')
+ax.set_xlabel(r'$E_{\rm g2}$' ,fontsize=16) 
+ax.set_ylabel(r'$E_{\rm g1}$' ,fontsize=16) 
+ax.set_zlabel(r'$E_{\rm g3}$',fontsize=16)
+cbar=fig.colorbar(sctt, ax = ax, shrink = 0.5, aspect = 5)
+cbar.ax.set_ylabel(r'$\eta_{\rm STE}$ (%)',fontsize=16)
 
 
 
@@ -76,4 +77,92 @@ cbar=fig.colorbar(sctt, ax = ax, shrink = 0.5, aspect = 5,label=r'$\eta_{STE}$')
 # show plot
 plt.show()
 
+print('Scenario T: Triple Solar cell, sparse coverage')
+
+
+X,Y=np.meshgrid(x,y)
+
+plt.figure()
+figcontour, ax = plt.subplots()
+
+
+Z=E[:,:,z_slice]=T.Sparse_Coverage_Efficiency_matrix[:,:,z_slice]+1
+levels=np.arange(0,18,2)
+
+cmap='jet'
+CS1 = ax.contourf(X, Y, Z,levels=np.arange(0,16.01,0.01),cmap=cmap)  
+
+cbar=figcontour.colorbar(CS1,ticks=levels)    
+clabel=r'$\eta_{\rm STE}$ (%)'
+
+cbar.ax.set_ylabel(clabel,fontsize=14)
+xmax=0
+ymax=0
+if xmax==0 and ymax==0:
+    xmax=np.where(Z==np.max(Z))[1][0]
+    ymax=np.where(Z==np.max(Z))[0][0]
+    
+plt.plot(x[xmax],y[ymax],'ok')
+ax.set_xlabel(r'$\it{E}$$_{\rm g2}$ (eV)',fontsize=14)
+ax.set_ylabel(r'$\it{E}$$_{\rm g1}$ (eV)',fontsize=14)
+props = dict(boxstyle='round,pad=0.5', facecolor='white', alpha=1)
+
+plt.show()
+
+X,Y=np.meshgrid(z,x)
+
+plt.figure()
+figcontour, ax = plt.subplots()
+
+
+Z=T.Sparse_Coverage_Efficiency_matrix[x_slice,:,:]+1
+levels=np.arange(0,18,2)
+
+cmap='jet'
+CS1 = ax.contourf(X, Y, Z,levels=np.arange(0,16.01,0.01),cmap=cmap)  
+cbar=figcontour.colorbar(CS1,ticks=levels)    
+clabel=r'$\eta_{\rm STE}$ (%)'
+
+cbar.ax.set_ylabel(clabel,fontsize=14)
+xmax=0
+ymax=0
+if xmax==0 and ymax==0:
+    xmax=np.where(Z==np.max(Z))[1][0]
+    ymax=np.where(Z==np.max(Z))[0][0]
+    
+plt.plot(z[xmax],x[ymax],'ok')
+ax.set_xlabel(r'$\it{E}$$_{\rm g3}$ (eV)',fontsize=14)
+ax.set_ylabel(r'$\it{E}$$_{\rm g2}$ (eV)',fontsize=14)
+props = dict(boxstyle='round,pad=0.5', facecolor='white', alpha=1)
+  
+plt.show()
+
+
+X,Y=np.meshgrid(z,y)
+
+plt.figure()
+figcontour, ax = plt.subplots()
+
+
+Z=T.Sparse_Coverage_Efficiency_matrix[:,y_slice,:]+1
+levels=np.arange(0,18,2)
+
+cmap='jet'
+CS1 = ax.contourf(X, Y, Z,levels=np.arange(0,16.01,0.01),cmap=cmap)  
+cbar=figcontour.colorbar(CS1,ticks=levels)    
+clabel=r'$\eta_{\rm STE}$ (%)'
+
+cbar.ax.set_ylabel(clabel,fontsize=14)
+xmax=0
+ymax=0
+if xmax==0 and ymax==0:
+    xmax=np.where(Z==np.max(Z))[1][0]
+    ymax=np.where(Z==np.max(Z))[0][0]
+    
+plt.plot(z[xmax],y[ymax],'ok')
+ax.set_xlabel(r'$\it{E}$$_{\rm g3}$ (eV)',fontsize=14)
+ax.set_ylabel(r'$\it{E}$$_{\rm g1}$ (eV)',fontsize=14)
+props = dict(boxstyle='round,pad=0.5', facecolor='white', alpha=1)
+
+plt.show()
 print('Scenario T: Triple Solar cell, sparse coverage')

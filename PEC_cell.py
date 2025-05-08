@@ -171,7 +171,7 @@ class PEC_Cell():
         
         
         self.PEC_mode='sparse coverage' #Scenario A
-        self.Fixed_concentration=False
+        self.Fixed_ethylene_output=True
         
         self.Reduction_mode='CO2 reduction'
         
@@ -269,6 +269,27 @@ class PEC_Cell():
             self.OER_catalyst='NiFeOx_pH14'
             self.Fluid_resistance=5 #Ohm
             self.FF_goal=0.85
+            
+            
+        elif scenario=='FF 0.75 sparse coverage':
+            # print('A')
+  
+            self.PEC_mode='sparse coverage'
+            self.Reduction_mode='CO2 reduction'
+            self.CO2RR_catalyst='OIID-Cu'
+            self.OER_catalyst='NiFeOx_pH14'
+            self.Fluid_resistance=5 #Ohm
+            self.FF_goal=0.75
+                
+        elif scenario=='FF 0.65 sparse coverage':
+            # print('A')
+  
+            self.PEC_mode='sparse coverage'
+            self.Reduction_mode='CO2 reduction'
+            self.CO2RR_catalyst='OIID-Cu'
+            self.OER_catalyst='NiFeOx_pH14'
+            self.Fluid_resistance=5 #Ohm
+            self.FF_goal=0.65
             
         elif scenario=='Scenario B: solar concentration':
          
@@ -948,11 +969,12 @@ class PEC_Cell():
         #Find the intersection    
         V_op,J_op=intersect.intersection(V_tandem_solar_cell,J_tandem_solar_cell,V_tot,J_catalyst)
         
-        if self.PEC_mode=='PV-EC':
+        if self.PEC_mode=='PV-EC' or self.Fixed_ethylene_output:
             Faradaic_efficiency=self.Max_ethylene_percentage
         else:
             #If sparse coverage is chose, the ethylene percentage is also assumed to be maximum at AM1.5G. Only at variations in sunlight, a interpolation is chosen
-            Faradaic_efficiency=np.interp(J_op,J_catalyst,Ethylene_percentage)
+            #Faradaic_efficiency=np.interp(J_op,J_catalyst,Ethylene_percentage)
+            Faradaic_efficiency=np.interp(J_op*self.Co2RcatalystConcentrator,self.Current_density_CO2RR_extended,self.Ethylene_percentage_extended)[0]
         
         if np.size(V_op)==0:
             V_op=J_op=Faradaic_efficiency=0
@@ -971,6 +993,7 @@ class PEC_Cell():
         J_catalyst=np.arange(0.1,max(J_tandem_solar_cell)*1.2,self.Current_accuracy*self.Mirror_factor)
         if self.PEC_mode=='PV-EC':
             V_required,V_OER,V_CO2RR,Ethylene_percentage=self.Find_V_required_PEC_cell(self.J_max_ethylene)
+   
             V_tot=np.zeros(len(J_catalyst))+V_required
             
         else:
@@ -986,11 +1009,12 @@ class PEC_Cell():
                 V_tot[i],V_OER_catalyst[i],V_CO2RR_catalyst[i],Ethylene_percentage[i]=self.Find_V_required_PEC_cell(J)
             
         V_op,J_op=intersect.intersection(V_tandem_solar_cell,J_tandem_solar_cell,V_tot,J_catalyst)
-        
-        if self.PEC_mode=='PV-EC':
+
+        if self.PEC_mode=='PV-EC'  or self.Fixed_ethylene_output:
             Faradaic_efficiency=self.Max_ethylene_percentage
         else:
-            Faradaic_efficiency=np.interp(J_op,J_catalyst,Ethylene_percentage)
+            #Faradaic_efficiency=np.interp(J_op,J_catalyst,Ethylene_percentage)
+            Faradaic_efficiency=np.interp(J_op*self.Co2RcatalystConcentrator,self.Current_density_CO2RR_extended,self.Ethylene_percentage_extended)[0]
         
         if np.size(V_op)==0:
             V_op=J_op=Faradaic_efficiency=0
@@ -1199,7 +1223,7 @@ class PEC_Cell():
         
         if self.Reduction_mode=='CO2 reduction':
             #Normally, we would assume that the design is so that the faradaic efficiency is maximal for the CO2RR catalyst. However, for changes in light conditions, the faradaic efficiency can vary. 
-            if self.PEC_mode=='sparse coverage' and self.Fixed_concentration==False:
+            if self.PEC_mode=='sparse coverage' and self.Fixed_ethylene_output:
                 
                 V_CO2RR_catalyst,Ethylene_percentage=self.V_CO2RR(J,optimal=True)
             else:
@@ -1369,7 +1393,7 @@ class PEC_Cell():
                 
     def Vary_Solar_Intensity(self,Bandgap_1,Bandgap_2,Solar_Concentration_range=np.arange(0.1,1.5,0.01),plot_graph_solar=True):
         #Used for variations in solar efficiency
-        self.Fixed_concentration=True
+        self.Fixed_ethylene_output=False
         Efficiencies=np.zeros(len(Solar_Concentration_range))
         FEs=np.zeros(len(Solar_Concentration_range))
         Voltages=np.zeros(len(Solar_Concentration_range))
@@ -1414,6 +1438,109 @@ class PEC_Cell():
             
             
     
+        return Efficiencies,FEs,Voltages,Currents,umol_C2H4
+    
+    
+    def Degradation_catalyst(self,Bandgap_1,Bandgap_2,Degradation_range=np.arange(0,36,1),plot_graph=True):
+        #Used for variations in catalyst degradation, only for PEC
+
+
+
+        self.Fixed_ethylene_output=False
+        Efficiencies=np.zeros(len(Degradation_range))
+        FEs=np.zeros(len(Degradation_range))
+        Voltages=np.zeros(len(Degradation_range))
+        Currents=np.zeros(len(Degradation_range))
+        umol_C2H4=np.zeros(len(Degradation_range))
+        j=0
+        plt.figure(1)
+        if self.Mirror_factor==1:
+            #AM1.5G
+            Standard_Solarpower=100.2
+        else:
+            #AM1.5D
+            Standard_Solarpower=90*self.Mirror_factor
+            
+            
+        for degradation_percentage in Degradation_range:
+            
+            Voltage_SC1,J_SC1,FF,Voltage_SC2,J_SC2,FF=self.Double_solar_cell(Bandgap_1,Bandgap_2)
+            V_tandem_solar_cell,J_tandem_solar_cell=self.find_J_V_tandem_solar_cel(Voltage_SC1,J_SC1,Voltage_SC2,J_SC2)
+            
+            #Calculate jV OER
+            #Calculate jV+FE CO2RR
+            #Find match again with
+        
+            J_catalyst=np.arange(0.1,max(J_tandem_solar_cell)*1.2,self.Current_accuracy*self.Mirror_factor)
+            V_tot=np.zeros(len(J_catalyst))
+            
+            V_OER_catalyst=np.zeros(len(J_catalyst))
+            V_CO2RR_catalyst=np.zeros(len(J_catalyst))
+            Ethylene_percentage=np.zeros(len(J_catalyst))
+            new_Co2RcatalystConcentrator=self.Co2RcatalystConcentrator*(100/(100-degradation_percentage))
+            for i in range(len(J_catalyst)):
+                J_solar=J_catalyst[i]
+                J_deg=J_solar*(100/(100-degradation_percentage)) #Transform the solar current density to the degradation current density, without taking concentration into account
+                V_OER_catalyst[i]=self.Voltage_OER(J_deg)
+                # V_OER_catalyst[i]=self.Voltage_OER(J_solar)
+                V_CO2RR_catalyst[i],Ethylene_percentage[i]=self.V_CO2RR(J_deg*new_Co2RcatalystConcentrator,optimal=False)
+                V_tot[i]=V_OER_catalyst[i]+V_CO2RR_catalyst[i]+J_solar*1e-3*self.Fluid_resistance
+                
+                
+                
+         
+            #Find the intersection, with J_catalyst adjusted for degradation- more current has to pass through it. This assumes equal degradation of the OER and CO2RR catalysts
+            V_op,J_op=intersect.intersection(V_tandem_solar_cell,J_tandem_solar_cell,V_tot,J_catalyst)
+            if np.size(V_op)==0:
+                V_op=J_op=Faradaic_efficiency=0
+            else:
+            
+                Faradaic_efficiency=np.interp(J_op*new_Co2RcatalystConcentrator,self.Current_density_CO2RR_extended,self.Ethylene_percentage_extended)[0]
+                
+            if j==0:
+                
+                plt.plot(V_tandem_solar_cell,J_tandem_solar_cell,'k',V_tot,J_catalyst,'--k',V_op,J_op,'.k')
+        
+                
+           
+        
+                
+            
+        
+            if self.message_variation:
+                print(J_op,J_op*new_Co2RcatalystConcentrator,V_op,Faradaic_efficiency)
+            
+        
+            Efficiencies[j]=self.STE(J_op,Faradaic_efficiency)[0]
+            FEs[j]=Faradaic_efficiency
+            Voltages[j]=V_op[0]
+            Currents[j]=J_op[0]
+            umol_C2H4[j]=self.mol_ethylene(J_op, Faradaic_efficiency)
+            
+            j+=1
+            
+        
+        plt.figure(1)
+        plt.plot(V_tot,J_catalyst,':k',V_op,J_op,'.k')
+        plt.xlabel('$U$ (V)',fontsize=14)
+        plt.ylabel(r'$J/A_{\rm s}$',fontsize=14)
+        plt.xlim(1.0,3.0)
+        plt.show()
+        
+        
+        if plot_graph:
+            
+            self.plot_graph_vary_intensity(Degradation_range, Efficiencies, 'Degradation of the catalysts (%)',r'$\eta_{\rm STE}$ (%)')
+            self.plot_graph_vary_intensity(Degradation_range, FEs, 'Degradation of the catalysts (%)',r'Overall FE_${\rm C_2H_4}$ (%)')
+            self.plot_graph_vary_intensity(Degradation_range, Voltages, 'Degradation of the catalysts (%)',r'U$_{\rm int}$')
+            self.plot_graph_vary_intensity(Degradation_range, Currents, 'Degradation of the catalysts (%)',r'$j_{\rm s}$ (mA/cm$^2$)')
+            self.plot_graph_vary_intensity(Degradation_range, Currents*100/(100-Degradation_range)*self.Co2RcatalystConcentrator, 'Degradation of the catalysts (%)',r'$j_{\rm CO_2RR}$ (mA/cm$^2$)')
+            self.plot_graph_vary_intensity(Degradation_range,  umol_C2H4, 'Degradation of the catalysts (%)',r'$\nu_{\rm C_2H_4}$ ($\mu$mol / h / cm$^2$)')
+            
+            
+            
+            plt.show()
+         
         return Efficiencies,FEs,Voltages,Currents,umol_C2H4
         
     def plot_graph_vary_intensity(self,x,y,xlabel='',ylabel='',title='',linear=0):
