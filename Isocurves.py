@@ -3,7 +3,7 @@
 Created on Fri Jan 24 12:01:39 2025
 
 This script calculates js using different overpotentials of the CO2RR catalyst under AM1.5G using tandem solar cells. 
-Together with the faradaic efficiency, which is varied from 0 to 100, isocurves of production rate can be make, generating Figure 5 and Figure S5. 
+Together with the faradaic efficiency, which is varied from 0 to 100, isocurves of production rate can be make, generating Figure 5 and Figure S7. 
 
 The OER catalyst is assumed to be NiFeOx, R_solution=5 
 
