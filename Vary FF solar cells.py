@@ -13,14 +13,14 @@ A.message_spectrum_loaded=False
 A.Calculate_setup(scenario='Scenario A: sparse coverage')
 plt.show()
 
-B=PEC_cell.PEC_Cell()
-B.message_spectrum_loaded=False
-B.Calculate_setup(scenario='FF 0.75 sparse coverage')
+FF075=PEC_cell.PEC_Cell()
+FF075.message_spectrum_loaded=False
+FF075.Calculate_setup(scenario='FF 0.75 sparse coverage')
 plt.show()
 
-C=PEC_cell.PEC_Cell()
-C.message_spectrum_loaded=False
-C.Calculate_setup(scenario='FF 0.65 sparse coverage')
+FF065=PEC_cell.PEC_Cell()
+FF065.message_spectrum_loaded=False
+FF065.Calculate_setup(scenario='FF 0.65 sparse coverage')
 plt.show()
 
 print('Scenario A sparse coverage')
