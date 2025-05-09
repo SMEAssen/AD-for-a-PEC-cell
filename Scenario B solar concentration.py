@@ -3,7 +3,7 @@
 Created on Fri Jan 24 12:08:36 2025
 
 This script calculates the concentrated sunlight approach for PEC cells that reduce CO2 into C2H4 optimal at AM1.5G using a tandem solar cell. This generates Figure S2.  
-Here, we use data from the O(II)D-Cu and NiFeOx catalysts, with R_solution=5 and FF solar cells=0.85
+Here, we use data from the O(II)D-Cu and NiFeOx catalysts, with R_solution=5 and FF solar cells=0.85. We assume room temperature and no significant mass transportation effects. 
 
 References
 Asiri, A. M.; Gao, J.; Khan, S. B.; Alamry, K. A.; Marwani, H. M.; Khan, M. S. J.; Adeosun, W. A.; Zakeeruddin, S. M.; Ren, D.; Grätzel, M. Revisiting the Impact of Morphology and Oxidation State of Cu on CO2 Reduction Using Electrochemical Flow Cell. J. Phys. Chem. Lett. 2022, 13 (1), 345–351. https://doi.org/10.1021/acs.jpclett.1c03957.
