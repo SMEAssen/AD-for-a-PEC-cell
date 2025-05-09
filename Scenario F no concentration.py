@@ -2,7 +2,7 @@
 """
 Created on Fri Jan 24 12:10:21 2025
 
-This script calculates PEC cells that reduce CO2 into C2H4 without any concentration using a tandem solar cell. This generates Figure S7.  
+This script calculates PEC cells that reduce CO2 into C2H4 without any concentration using a tandem solar cell. This generates Figure S10.  
 Here, we use data from the O(II)D-Cu and NiFeOx catalysts, with R_solution=5 and FF solar cells=0.85
 First, the solar cells are calculated, which are coupled to external EC cells. In this configuration, 3 tandem solar cells could drive 2 EC cells.  
 
